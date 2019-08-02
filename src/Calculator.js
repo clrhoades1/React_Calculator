@@ -3,6 +3,7 @@ import './stylesheet.css';
 import divide from './keypad_pictures/division_button.png';
 import remove from './keypad_pictures/delete_button.png';
 import neg from './keypad_pictures/negative_button.png';
+import { thisTypeAnnotation } from '@babel/types';
 
 const Keypad = (props) => {
 
@@ -42,7 +43,7 @@ const Keypad = (props) => {
           <button className='btn other-btn make-orange' value='+' onClick={() => props.onClick('+')}>+</button>
         </div>
         <div className="row">
-          <button className='btn other-btn make-other' value='+-'>
+          <button className='btn other-btn make-other' value='+-' onClick={() => props.onClick('+-')}>
             <img src={neg} alt="negative"/>
           </button>
           <button className='btn num-btn make-other' value='0' onClick={() => props.onClick('0')}>0</button>
@@ -81,7 +82,7 @@ export default class Calculator extends Component {
       history: [],
       showHistory: false,
       result: '',
-      resultGiven: false
+      resultGiven: false,
     };
   }
 
@@ -130,6 +131,7 @@ export default class Calculator extends Component {
         break;
 
       case '+-':
+        this.addNegation();
         break;
 
       default:
@@ -137,19 +139,39 @@ export default class Calculator extends Component {
     }
   }
 
+  addNegation() {
+    if(this.state.input === '') {
+      return;
+    }
+
+    if(this.state.input.indexOf('-') >= 0) {
+      this.setState ({
+        input: this.state.input.substring(1)
+      });
+    } else {
+      this.setState ({
+        input: '-' + this.state.input
+      });
+    }
+    
+  }
+
   newDigit(digit) {
     if(isNaN(digit)) {
       throw Error('The input must be numeric');
     }
 
+    let newInput = this.state.input;
+
     if(this.state.resultGiven === true) {
       this.setState ({
         result: '',
-        resultGiven: false
+        resultGiven: false,
       })
+
+      newInput = '';
     }
 
-    let newInput = this.state.input;
     newInput += digit;
 
     this.setState ({
